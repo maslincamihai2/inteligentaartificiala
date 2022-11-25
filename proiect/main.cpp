@@ -1,5 +1,4 @@
 #include <iostream>
-#include <vector>
 
 using namespace std;
 
@@ -9,7 +8,6 @@ int const DIM_SOL = 31;
 int const DIM_POP = 200;
 
 char populatie[DIM_POP][DIM_SOL];
-char populatieTemp[DIM_POP][DIM_SOL];
 
 int stareInitiala[][DIM_TABLA] = {
     {2, 0, 4},
@@ -45,48 +43,12 @@ void genereazaPopulatieInitiala() {
     }
 }
 
-vector<pair<int, int>> selectie() {
-    vector<pair<int, int>> parinti;
+void selectie() {
 
-    for(int i=0; i<DIM_POP/2; i++){
-        // alegem doi parinti la intamplare
-        int pozitieParinte1 = rand()%DIM_POP;
-        int pozitieParinte2 = rand()%DIM_POP;
-
-        parinti.push_back(make_pair(pozitieParinte1, pozitieParinte2));
-    }
-
-    return parinti;
 }
 
-void recombinare(vector<pair<int, int>> parinti) {
+void recombinare() {
 
-    for(int i=0; i<DIM_POP; i+=2){
-        //extragem pozitiile parintilor
-        int pozitieParinte1 = parinti[i].first;
-        int pozitieParinte2 = parinti[i].second;
-
-        // alegem punct de taietura la intamplare
-        int pozitieTaietura = rand()%DIM_SOL;
-
-        // copiem genele pana la pct de taietura din parinte1 in copil1
-        for(int j=0; j<pozitieTaietura; j++){
-            populatieTemp[i][j] = populatie[pozitieParinte1][j];
-        }
-        // copiem genele de la pct de taietura din parinte2 in copil1
-        for(int j=pozitieTaietura; j<DIM_SOL; j++){
-            populatieTemp[i][j] = populatie[pozitieParinte2][j];
-        }
-
-        // copiem genele pana la pct de taietura din parinte2 in copil2
-        for(int j=0; j<pozitieTaietura; j++){
-            populatieTemp[i+1][j] = populatie[pozitieParinte2][j];
-        }
-        // copiem genele de la pct de taietura din parinte1 in copil2
-        for(int j=pozitieTaietura; j<DIM_SOL; j++){
-            populatieTemp[i+1][j] = populatie[pozitieParinte1][j];
-        }
-    }
 }
 
 void mutatie() {
@@ -101,14 +63,6 @@ int calculeazaFitness() {
 
 }
 
-void actualizeazaPopulatie(){
-    for(int i=0; i<DIM_POP; i++){
-        for(int j=0; j<DIM_SOL; j++){
-            populatie[i][j] = populatieTemp[i][j];
-        }
-    }
-}
-
 int verificaConditieOprire() {
     return 0;
 }
@@ -118,10 +72,9 @@ int main() {
     genereazaPopulatieInitiala();
 
     while(verificaConditieOprire() == 0) {
-            vector<pair<int, int>> parinti = selectie();
-            recombinare(parinti);
+            selectie();
+            recombinare();
             mutatie();
-            actualizeazaPopulatie();
     }
 
     afiseazaSolutie();
