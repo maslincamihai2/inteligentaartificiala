@@ -7,6 +7,7 @@ int const DIM_TABLA = 3;
 // Pentru tabla 3*3 sunt necesare maxim 31 miscari
 int const DIM_SOL = 31;
 int const DIM_POP = 200;
+int const RATA_MUT = 10;
 
 char populatie[DIM_POP][DIM_SOL];
 char populatieTemp[DIM_POP][DIM_SOL];
@@ -90,7 +91,28 @@ void recombinare(vector<pair<int, int>> parinti) {
 }
 
 void mutatie() {
-
+    for(int i = 0; i<DIM_POP; i++) {
+        int probabilitate = rand()%100;
+        if (probabilitate < RATA_MUT) {
+            // schimbam o miscare aleatoare cu o alta miscare
+            int pozitieGena = rand()%DIM_SOL;
+            int genaNoua = rand()%4;
+            char caracter;
+            switch(genaNoua) {
+                case 0:
+                    caracter = 'N';
+                    break;
+                case 1:
+                    caracter = 'S';
+                case 2:
+                    caracter = 'V';
+                    break;
+                case 3:
+                    caracter = 'E';
+            }
+            populatieTemp[i][pozitieGena] = caracter;
+        }
+    }
 }
 
 void afiseazaSolutie() {
@@ -98,7 +120,11 @@ void afiseazaSolutie() {
 }
 
 int calculeazaFitness() {
-
+    // numara cate piese din solutia curenta sunt in aceeasi pozitie
+    // cu piesele din starea finala
+    //NETERMINAT------------------------------------------------------
+    int pozitiiCorecte = 0;
+    return pozitiiCorecte;
 }
 
 void actualizeazaPopulatie(){
@@ -110,6 +136,11 @@ void actualizeazaPopulatie(){
 }
 
 int verificaConditieOprire() {
+    //NETERMINAT------------------------------------------------------
+
+    if (calculeazaFitness() == DIM_TABLA*DIM_TABLA) {
+        return 1;
+    }
     return 0;
 }
 
