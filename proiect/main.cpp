@@ -1,28 +1,34 @@
 #include <iostream>
 #include <vector>
-
+#include <fstream>
 using namespace std;
 
 int const DIM_TABLA = 3;
-// Pentru tabla 3*3 sunt necesare maxim 31 miscari
-int const DIM_SOL = 31;
-int const DIM_POP = 200;
+// Pentru tabla 3*3 sunt necesare in jur de 31 miscari
+int const DIM_SOL = 40;
+int const DIM_POP = 50;
 int const RATA_MUT = 10;
 
 char populatie[DIM_POP][DIM_SOL];
 char populatieTemp[DIM_POP][DIM_SOL];
 
 int stareInitiala[][DIM_TABLA] = {
-    {2, 0, 4},
-    {7, 6, 3},
-    {5, 1, 8}
+    {8, 0, 7},
+    {4, 5, 1},
+    {6, 3, 2}
 };
+int iPozitieLibera = 0;
+int jPozitieLibera = 1;
 
 int stareFinala[][DIM_TABLA] = {
     {1, 2, 3},
-    {8, 0, 4},
-    {7, 6, 5}
+    {4, 5, 6},
+    {7, 8, 0}
 };
+
+int stareCurenta[DIM_TABLA][DIM_TABLA];
+char solutie[DIM_SOL];
+int lungimeSol;
 
 void genereazaPopulatieInitiala() {
     for (int i = 0; i < DIM_POP; i++) {
@@ -62,7 +68,7 @@ vector<pair<int, int>> selectie() {
 
 void recombinare(vector<pair<int, int>> parinti) {
 
-    for(int i=0; i<DIM_POP; i+=2){
+    for(int i=0; i<DIM_POP/2; i++){
         //extragem pozitiile parintilor
         int pozitieParinte1 = parinti[i].first;
         int pozitieParinte2 = parinti[i].second;
@@ -72,20 +78,20 @@ void recombinare(vector<pair<int, int>> parinti) {
 
         // copiem genele pana la pct de taietura din parinte1 in copil1
         for(int j=0; j<pozitieTaietura; j++){
-            populatieTemp[i][j] = populatie[pozitieParinte1][j];
+            populatieTemp[2*i][j] = populatie[pozitieParinte1][j];
         }
         // copiem genele de la pct de taietura din parinte2 in copil1
         for(int j=pozitieTaietura; j<DIM_SOL; j++){
-            populatieTemp[i][j] = populatie[pozitieParinte2][j];
+            populatieTemp[2*i][j] = populatie[pozitieParinte2][j];
         }
 
         // copiem genele pana la pct de taietura din parinte2 in copil2
         for(int j=0; j<pozitieTaietura; j++){
-            populatieTemp[i+1][j] = populatie[pozitieParinte2][j];
+            populatieTemp[2*i+1][j] = populatie[pozitieParinte2][j];
         }
         // copiem genele de la pct de taietura din parinte1 in copil2
         for(int j=pozitieTaietura; j<DIM_SOL; j++){
-            populatieTemp[i+1][j] = populatie[pozitieParinte1][j];
+            populatieTemp[2*i+1][j] = populatie[pozitieParinte1][j];
         }
     }
 }
@@ -116,14 +122,23 @@ void mutatie() {
 }
 
 void afiseazaSolutie() {
-
+    cout << "\n\n\n\nSOLUTIA ESTE: \n";
+    for (int i = 0; i < lungimeSol; i++) {
+        cout << solutie[i] << " ";
+    }
 }
 
 int calculeazaFitness() {
     // numara cate piese din solutia curenta sunt in aceeasi pozitie
     // cu piesele din starea finala
-    //NETERMINAT------------------------------------------------------
     int pozitiiCorecte = 0;
+    for (int i = 0; i < DIM_TABLA; i++) {
+        for (int j = 0; j < DIM_TABLA; j++) {
+            if (stareCurenta[i][j] == stareFinala[i][j]) {
+                pozitiiCorecte++;
+            }
+        }
+    }//cout<<pozitiiCorecte;
     return pozitiiCorecte;
 }
 
@@ -135,13 +150,101 @@ void actualizeazaPopulatie(){
     }
 }
 
-int verificaConditieOprire() {
-    //NETERMINAT------------------------------------------------------
+void initializeazaStareCurenta() {
+    for (int i = 0; i < DIM_TABLA; i++) {
+        for (int j = 0; j < DIM_TABLA; j++) {
+            stareCurenta[i][j] = stareInitiala[i][j];
+        }
+    }
+}
 
-    if (calculeazaFitness() == DIM_TABLA*DIM_TABLA) {
-        return 1;
+int verificaStareCurenta() {
+    for (int i = 0; i < DIM_TABLA; i++) {
+        for (int j = 0; j < DIM_TABLA; j++) {
+            if (stareCurenta[i][j] != stareFinala[i][j]) {
+                return 0;
+            }
+        }
+    }
+
+    return 1;
+}
+
+int verificaConditieOprire() {
+
+    for(int i = 0; i < DIM_POP; i++) {
+        initializeazaStareCurenta();
+        lungimeSol = 0;
+
+        for(int j = 0; j < DIM_SOL; j++) {
+            char directie = populatie[i][j];
+            switch (directie) {
+            case 'N':
+                //Inainte de a face mutarea verific daca e valida
+                if (iPozitieLibera-1 < 0) {
+                    //daca e invalida se ignora
+                    continue;
+                }
+                //Se gliseaza pozitia libera
+                swap(stareCurenta[iPozitieLibera][jPozitieLibera], stareCurenta[iPozitieLibera-1][jPozitieLibera]);
+                //Se actualizeaza i-ul si j-ul pozitiei libere
+                iPozitieLibera--;
+                break;
+            case 'S':
+                if (iPozitieLibera+1 == DIM_TABLA) {
+                    continue;
+                }
+                swap(stareCurenta[iPozitieLibera][jPozitieLibera], stareCurenta[iPozitieLibera+1][jPozitieLibera]);
+                iPozitieLibera++;
+                break;
+            case 'V':
+                if (jPozitieLibera-1 < 0) {
+                    continue;
+                }
+                swap(stareCurenta[iPozitieLibera][jPozitieLibera], stareCurenta[iPozitieLibera][jPozitieLibera-1]);
+                jPozitieLibera--;
+                break;
+            case 'E':
+                if (jPozitieLibera+1 == DIM_TABLA) {
+                    continue;
+                }
+                swap(stareCurenta[iPozitieLibera][jPozitieLibera], stareCurenta[iPozitieLibera][jPozitieLibera+1]);
+                jPozitieLibera++;
+            }
+
+            //Se adauga directia la solutie
+            solutie[lungimeSol] = directie;
+            lungimeSol++;
+
+            //Daca s-a ajuns la starea finala mai repede se opreste cautarea
+            if (verificaStareCurenta()) {
+                return 1;
+            }
+        }
     }
     return 0;
+}
+
+void afiseazaPopulatie() {
+    cout << "\n\n\nAFISARE POPULATIE:";
+    for (int i = 0; i < DIM_POP; i++) {
+        cout << "\nAFISARE INDIVID:\n";
+        for (int j = 0; j < DIM_SOL; j++) {
+            cout << populatie[i][j] << " ";
+        }
+    }
+}
+ofstream fout("iesire");
+void scriePopulatieFisier(){
+
+
+    fout << "\n\n\nAFISARE POPULATIE:";
+    for (int i = 0; i < DIM_POP; i++) {
+        fout << "\nAFISARE INDIVID:\n";
+        for (int j = 0; j < DIM_SOL; j++) {
+            fout << populatie[i][j] << " ";
+        }
+    }
 }
 
 int main() {
@@ -149,6 +252,8 @@ int main() {
     genereazaPopulatieInitiala();
 
     while(verificaConditieOprire() == 0) {
+            //afiseazaPopulatie();
+            scriePopulatieFisier();
             vector<pair<int, int>> parinti = selectie();
             recombinare(parinti);
             mutatie();
