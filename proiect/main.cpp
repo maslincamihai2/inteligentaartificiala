@@ -6,16 +6,16 @@ using namespace std;
 int const DIM_TABLA = 3;
 // Pentru tabla 3*3 sunt necesare in jur de 31 miscari
 int const DIM_SOL = 40;
-int const DIM_POP = 50;
+int const DIM_POP = 150;
 int const RATA_MUT = 10;
 
 char populatie[DIM_POP][DIM_SOL];
 char populatieTemp[DIM_POP][DIM_SOL];
 
 int stareInitiala[][DIM_TABLA] = {
-    {8, 0, 7},
-    {4, 5, 1},
-    {6, 3, 2}
+    {0, 1, 2},
+    {4, 5, 3},
+    {7, 8, 6}
 };
 int iPozitieLibera = 0;
 int jPozitieLibera = 1;
@@ -128,20 +128,6 @@ void afiseazaSolutie() {
     }
 }
 
-int calculeazaFitness() {
-    // numara cate piese din solutia curenta sunt in aceeasi pozitie
-    // cu piesele din starea finala
-    int pozitiiCorecte = 0;
-    for (int i = 0; i < DIM_TABLA; i++) {
-        for (int j = 0; j < DIM_TABLA; j++) {
-            if (stareCurenta[i][j] == stareFinala[i][j]) {
-                pozitiiCorecte++;
-            }
-        }
-    }//cout<<pozitiiCorecte;
-    return pozitiiCorecte;
-}
-
 void actualizeazaPopulatie(){
     for(int i=0; i<DIM_POP; i++){
         for(int j=0; j<DIM_SOL; j++){
@@ -225,6 +211,7 @@ int verificaConditieOprire() {
     return 0;
 }
 
+/*
 void afiseazaPopulatie() {
     cout << "\n\n\nAFISARE POPULATIE:";
     for (int i = 0; i < DIM_POP; i++) {
@@ -234,6 +221,9 @@ void afiseazaPopulatie() {
         }
     }
 }
+*/
+
+/*
 ofstream fout("iesire");
 void scriePopulatieFisier(){
 
@@ -246,6 +236,23 @@ void scriePopulatieFisier(){
         }
     }
 }
+*/
+
+/*
+int calculeazaFitness() {
+    // numara cate piese din solutia curenta sunt in aceeasi pozitie
+    // cu piesele din starea finala
+    int pozitiiCorecte = 0;
+    for (int i = 0; i < DIM_TABLA; i++) {
+        for (int j = 0; j < DIM_TABLA; j++) {
+            if (stareCurenta[i][j] == stareFinala[i][j]) {
+                pozitiiCorecte++;
+            }
+        }
+    }//cout<<pozitiiCorecte;
+    return pozitiiCorecte;
+}
+*/
 
 int main() {
 
@@ -253,7 +260,7 @@ int main() {
 
     while(verificaConditieOprire() == 0) {
             //afiseazaPopulatie();
-            scriePopulatieFisier();
+            //scriePopulatieFisier();
             vector<pair<int, int>> parinti = selectie();
             recombinare(parinti);
             mutatie();
